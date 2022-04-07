@@ -3,9 +3,15 @@ package com.example.springProject.Services;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import com.example.springProject.Services.exceptions.DataBaseException;
+import com.example.springProject.Services.exceptions.ResourceNotFoundException;
 import com.example.springProject.entities.User;
 import com.example.springProject.repositories.UserRepository;
 
@@ -21,7 +27,7 @@ public class UserService {
 	
 	public User findById(Long id) {
 		Optional<User> obj = repository.findById(id);
-		return obj.get();
+		return obj.orElseThrow(()-> new ResourceNotFoundException(id));
 	}
 	
 	//Insert new user
@@ -31,14 +37,26 @@ public class UserService {
 	
 	//Delete User
 	public void deleteUser(Long id) {
-		repository.deleteById(id);
+		try {
+			repository.deleteById(id);
+		} catch(EmptyResultDataAccessException e){
+			throw new ResourceNotFoundException(id);
+		} catch (DataIntegrityViolationException e) { //When deleting user with orders associated
+			throw new DataBaseException(e.getMessage());
+		}
+		
 	}
 	
 	//Update User
 	public User updateUser(Long id, User obj) {
-		User entity = repository.getOne(id); //prepares obj, not directly to DB
-		updateData(entity,obj);
-		return repository.save(entity);
+		try {
+			User entity = repository.getOne(id); //prepares obj, not directly to DB
+			updateData(entity,obj);
+			return repository.save(entity);
+		}catch(EntityNotFoundException e) {
+			throw new ResourceNotFoundException(id);
+		}
+		
 	}
 
 	private void updateData(User entity, User obj) {
