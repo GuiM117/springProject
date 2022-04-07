@@ -19,7 +19,6 @@ import javax.persistence.Table;
 
 import com.example.springProject.entities.enums.OrderStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "tb_order")
