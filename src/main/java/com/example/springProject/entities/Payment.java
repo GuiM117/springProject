@@ -1,43 +1,43 @@
 package com.example.springProject.entities;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.time.Instant;
 import java.util.Objects;
-import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.MapsId;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 @Entity
-@Table(name = "tb_category")
-public class Category implements Serializable {
-	
+@Table(name = "tb_payment")
+//Dependent Class (Order may or may not have payment)
+public class Payment implements Serializable {
+
+
 	private static final long serialVersionUID = 1L;
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private String name;
+	private Instant timeStamp;
 	
-	@JsonIgnore
-	@ManyToMany(mappedBy = "categories")  // From User
-	//PRODUCT
-	private Set<Product> products = new HashSet<>();
+	@OneToOne
+	@MapsId		//In the dependent Class
+	private Order order;
 	
-	public Category() {
+	public Payment() {
 		
 	}
 
-	public Category(Long id, String name) {
+	public Payment(Long id, Instant timeStamp, Order order) {
 		super();
 		this.id = id;
-		this.name = name;
+		this.timeStamp = timeStamp;
+		this.order = order;
 	}
 
 	public Long getId() {
@@ -48,16 +48,20 @@ public class Category implements Serializable {
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
+	public Instant getTimeStamp() {
+		return timeStamp;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setTimeStamp(Instant timeStamp) {
+		this.timeStamp = timeStamp;
 	}
-	
-	public Set<Product> getProducts() {
-		return products;
+
+	public Order getOrder() {
+		return order;
+	}
+
+	public void setOrder(Order order) {
+		this.order = order;
 	}
 
 	@Override
@@ -73,7 +77,7 @@ public class Category implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Category other = (Category) obj;
+		Payment other = (Payment) obj;
 		return Objects.equals(id, other.id);
 	}
 	
